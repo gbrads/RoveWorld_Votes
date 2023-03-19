@@ -5363,7 +5363,7 @@ const TweetDataDisplay = () => {
   }
 
   return (
-    <div style={{ margin: "6rem" }}>
+    <div style={{ margin: "6rem", overflowX: "none", width: "100vw" }}>
       <h1 style={{ textAlign: "center" }}>March Madness Votes<br />MTC vs TMZ</h1>
       {Object.entries(tweetData.comments).map(([username, comments]) => (
         <div key={username}>
