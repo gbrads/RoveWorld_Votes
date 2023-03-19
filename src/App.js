@@ -5355,31 +5355,19 @@ const TweetDataDisplay = () => {
     return links;
   }
 
-  const handleCheckboxChange = (username, commentId) => {
-    const updatedTweetData = { ...tweetData };
-    const comments = updatedTweetData.comments[username];
-    const comment = comments.find(comment => comment.id === commentId);
-    comment.isChecked = !comment.isChecked;
-    setTweetData(updatedTweetData);
-  }
-
   return (
     <div style={{ paddingLeft: "2rem", paddingRight: "2rem", margin: "4rem", maxWidth: "100%", display: "flex", alignItems: "start", flexDirection: "column" }}>
       <h1 style={{ textAlign: "center", width: "100%" }}>March Madness Votes<br />MTC vs TMZ</h1>
       {Object.entries(tweetData.comments).map(([username, comments]) => (
         <div key={username}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+          <input type="checkbox" id={`userCheckbox-${username}`} style={{ marginRight: '1rem' }} />
+            <h2>{username}'s comments:</h2>
+          </div>
           <ul>
             {comments.map(comment => (
               <li key={comment.id}>
                 <label>
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <input
-                      type="checkbox"
-                      checked={comment.isChecked}
-                      onChange={() => handleCheckboxChange(username, comment.id)}
-                    />
-                    <h2>{username}'s comments:</h2>
-                  </div>
                   {comment.comment}
                   {extractLinks(comment.comment).map(link => (
                     <a key={link} href={link} target="_blank" rel="noreferrer">
