@@ -5400,11 +5400,11 @@ const TweetDataDisplay = () => {
                 >
                   {embedTweets[comment.id] ? 'Hide tweet' : 'Show tweet'}
                 </button>
-                {embedTweets[comment.id] && (
+                {embedTweets[comment.id] ? (
                   <div style={{ marginLeft: '1rem' }}>
                     <Tweet tweetId={comment.id} />
                   </div>
-                )}
+                ) : null}
               </li>
             ))}
           </ul>
