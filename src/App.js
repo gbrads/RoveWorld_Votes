@@ -5363,15 +5363,6 @@ const TweetDataDisplay = () => {
     setTweetData(updatedTweetData);
   }
 
-  {/*const [embedTweets, setEmbedTweets] = useState({});
-
-  const toggleEmbedTweet = (tweetId) => {
-    setEmbedTweets((prevEmbedTweets) => ({
-      ...prevEmbedTweets,
-      [tweetId]: !prevEmbedTweets[tweetId],
-    }));
-  };*/}
-
   return (
     <div style={{ paddingLeft: "2rem", paddingRight: "2rem", margin: "4rem", maxWidth: "100%", display: "flex", alignItems: "start", flexDirection: "column" }}>
       <h1 style={{ textAlign: "center", width: "100%" }}>March Madness Votes<br />MTC vs TMZ</h1>
@@ -5402,17 +5393,6 @@ const TweetDataDisplay = () => {
                     <Tweet tweetId={comment.id} />
                   </LazyLoad>
                 </div>
-                {/*<button
-                  style={{ marginLeft: '1rem' }}
-                  onClick={() => toggleEmbedTweet(comment.id)}
-                >
-                  {embedTweets[comment.id] ? 'Hide tweet' : 'Show tweet'}
-                </button>
-                {embedTweets[comment.id] ? (
-                  <div style={{ marginLeft: '1rem' }}>
-                    <Tweet tweetId={comment.id} />
-                  </div>
-                ) : null}*/}
               </li>
             ))}
           </ul>
