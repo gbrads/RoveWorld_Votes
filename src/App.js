@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Tweet } from 'react-twitter-widgets';
+//import { Tweet } from 'react-twitter-widgets';
 
 const TweetDataDisplay = () => {
   const [tweetData, setTweetData] = useState({
@@ -5384,9 +5384,9 @@ const TweetDataDisplay = () => {
                     </a>
                   ))}
                 </label>
-                <div style={{ marginLeft: '1rem' }}>
+                {/*<div style={{ marginLeft: '1rem' }}>
                   <Tweet tweetId={comment.id} />
-                </div>
+                  </div>*/}
               </li>
             ))}
           </ul>
