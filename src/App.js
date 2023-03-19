@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Tweet } from 'react-twitter-widgets';
+import LazyLoad from 'react-lazyload';
 
 const TweetDataDisplay = () => {
   const [tweetData, setTweetData] = useState({
@@ -5362,30 +5363,32 @@ const TweetDataDisplay = () => {
     setTweetData(updatedTweetData);
   }
 
-  const [embedTweets, setEmbedTweets] = useState({});
+  {/*const [embedTweets, setEmbedTweets] = useState({});
 
   const toggleEmbedTweet = (tweetId) => {
     setEmbedTweets((prevEmbedTweets) => ({
       ...prevEmbedTweets,
       [tweetId]: !prevEmbedTweets[tweetId],
     }));
-  };
+  };*/}
 
   return (
-    <div style={{ paddingLeft: "4rem", paddingRight: "4rem", margin: "6rem", maxWidth: "100%", display: "flex", alignItems: "start", flexDirection: "column" }}>
-      <h1 style={{ textAlign: "center" }}>March Madness Votes<br />MTC vs TMZ</h1>
+    <div style={{ paddingLeft: "2rem", paddingRight: "2rem", margin: "4rem", maxWidth: "100%", display: "flex", alignItems: "start", flexDirection: "column" }}>
+      <h1 style={{ textAlign: "center", width: "100%" }}>March Madness Votes<br />MTC vs TMZ</h1>
       {Object.entries(tweetData.comments).map(([username, comments]) => (
         <div key={username}>
-          <h2>{username}'s comments:</h2>
           <ul>
             {comments.map(comment => (
               <li key={comment.id}>
                 <label>
-                  <input
-                    type="checkbox"
-                    checked={comment.isChecked}
-                    onChange={() => handleCheckboxChange(username, comment.id)}
-                  />
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <input
+                      type="checkbox"
+                      checked={comment.isChecked}
+                      onChange={() => handleCheckboxChange(username, comment.id)}
+                    />
+                    <h2>{username}'s comments:</h2>
+                  </div>
                   {comment.comment}
                   {extractLinks(comment.comment).map(link => (
                     <a key={link} href={link} target="_blank" rel="noreferrer">
@@ -5394,7 +5397,12 @@ const TweetDataDisplay = () => {
                     </a>
                   ))}
                 </label>
-                <button
+                <div style={{ marginLeft: '1rem' }}>
+                  <LazyLoad height={200} once>
+                    <Tweet tweetId={comment.id} />
+                  </LazyLoad>
+                </div>
+                {/*<button
                   style={{ marginLeft: '1rem' }}
                   onClick={() => toggleEmbedTweet(comment.id)}
                 >
@@ -5404,7 +5412,7 @@ const TweetDataDisplay = () => {
                   <div style={{ marginLeft: '1rem' }}>
                     <Tweet tweetId={comment.id} />
                   </div>
-                ) : null}
+                ) : null}*/}
               </li>
             ))}
           </ul>
