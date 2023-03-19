@@ -3,7 +3,7 @@ import { Tweet } from 'react-twitter-widgets';
 import LazyLoad from 'react-lazyload';
 
 const TweetDataDisplay = () => {
-  const [tweetData, setTweetData] = useState({
+  const [tweetData] = useState({
     "comments": {
       "Raze9500": [
         {
