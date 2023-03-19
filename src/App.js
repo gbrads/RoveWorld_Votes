@@ -5379,7 +5379,7 @@ const TweetDataDisplay = () => {
                   />
                   {comment.comment}
                   {extractLinks(comment.comment).map(link => (
-                    <a key={link} href={link}>
+                    <a key={link} href={link} target="_blank">
                       <br />
                       {link}
                     </a>
