@@ -5354,6 +5354,8 @@ const TweetDataDisplay = () => {
   const [teamScores, setTeamScores] = useState({ MTC: 0, TMZ: 0 });
   const [tweetVotes, setTweetVotes] = useState({});
   const [selectedScores, setSelectedScores] = useState({});
+  const [lockedScores, setLockedScores] = useState({});
+  const [tweetComments, setTweetComments] = useState({});
 
   useEffect(() => {
     const fetchVotes = async () => {
@@ -5368,6 +5370,16 @@ const TweetDataDisplay = () => {
           Object.entries(fetchedTweetVotes).map(([id, vote]) => [id, vote.score])
         );
         setSelectedScores(fetchedSelectedScores);
+
+        const fetchedLockedScores = Object.fromEntries(
+          Object.entries(fetchedTweetVotes).map(([id, vote]) => [id, vote.locked || false])
+        );
+        setLockedScores(fetchedLockedScores);
+
+        const fetchedTweetComments = Object.fromEntries(
+          Object.entries(fetchedTweetVotes).map(([id, vote]) => [id, vote.comment || ""])
+        );
+        setTweetComments(fetchedTweetComments);
       } catch (error) {
         console.error('Error fetching votes:', error);
       }
@@ -5376,8 +5388,6 @@ const TweetDataDisplay = () => {
     fetchVotes();
   }, []);
 
-
-
   const handleScoreButtonClick = async (tweetId, team, score) => {
     const newVote = { [tweetId]: { team, score } };
     setTweetVotes({ ...tweetVotes, ...newVote });
@@ -5385,13 +5395,16 @@ const TweetDataDisplay = () => {
     const newSelectedScores = { ...selectedScores, [tweetId]: score };
     setSelectedScores(newSelectedScores);
 
-    const newTeamScores = { ...teamScores, [team]: teamScores[team] + score };
+    const prevScore = tweetVotes[tweetId]?.score || 0;
+    const scoreDifference = score - prevScore;
+    const newTeamScores = { ...teamScores, [team]: teamScores[team] + scoreDifference };
     setTeamScores(newTeamScores);
 
     try {
-      await axios.post(`${serverUrl}/votes`, {
+      await axios.put(`${serverUrl}/votes/${tweetId}`, {
         tweetVotes: newVote,
         teamScores: newTeamScores,
+        scoreDifference,
       });
     } catch (error) {
       console.error('Error updating votes:', error);
@@ -5404,6 +5417,37 @@ const TweetDataDisplay = () => {
       ...prevEmbedTweets,
       [tweetId]: !prevEmbedTweets[tweetId],
     }));
+  };
+
+  const toggleLockedScore = async (tweetId) => {
+    const locked = !lockedScores[tweetId];
+
+    setLockedScores((prevLockedScores) => ({
+      ...prevLockedScores,
+      [tweetId]: locked,
+    }));
+
+    try {
+      await axios.put(`${serverUrl}/lock/${tweetId}`, { locked });
+    } catch (error) {
+      console.error("Error updating locked state:", error);
+    }
+  };
+
+  const handleCommentChange = (tweetId, comment) => {
+    setTweetComments((prevTweetComments) => ({
+      ...prevTweetComments,
+      [tweetId]: comment,
+    }));
+  };
+
+  const saveComment = async (tweetId) => {
+    try {
+      const comment = tweetComments[tweetId];
+      await axios.put(`${serverUrl}/comment/${tweetId}`, { comment });
+    } catch (error) {
+      console.error("Error updating comment:", error);
+    }
   };
 
   return (
@@ -5444,7 +5488,7 @@ const TweetDataDisplay = () => {
                           type="radio"
                           name={`team_${comment.id}`}
                           value="MTC"
-                          disabled={!!tweetVotes[comment.id]}
+                          disabled={lockedScores[comment.id]}
                           checked={tweetVotes[comment.id]?.team === 'MTC'}
                           onChange={(e) => {
                             setTweetVotes({
@@ -5459,7 +5503,7 @@ const TweetDataDisplay = () => {
                           type="radio"
                           name={`team_${comment.id}`}
                           value="TMZ"
-                          disabled={!!tweetVotes[comment.id]}
+                          disabled={lockedScores[comment.id]}
                           checked={tweetVotes[comment.id]?.team === 'TMZ'}
                           onChange={(e) => {
                             setTweetVotes({
@@ -5471,10 +5515,10 @@ const TweetDataDisplay = () => {
                       </label>
                     </div>
                     <div>
-                      {[1, 3, 5, 7, 10, 12, 15, -1].map((score) => (
+                      {[1, 3, 5, 7, 10, 12, 15].map((score) => (
                         <button
                           key={score}
-                          disabled={!!tweetVotes[comment.id]}
+                          disabled={lockedScores[comment.id]}
                           style={selectedScores[comment.id] === score ? { backgroundColor: 'yellow' } : {}}
                           onClick={async () => {
                             const team = document.querySelector(
@@ -5489,6 +5533,19 @@ const TweetDataDisplay = () => {
                         </button>
                       ))}
                     </div>
+                    <button
+                      style={{ margin: '1rem' }}
+                      onClick={() => toggleLockedScore(comment.id)}
+                    >
+                      {lockedScores[comment.id] ? 'Unlock Score' : 'Lock Score'}
+                    </button>
+                    <input
+                      type="text"
+                      disabled={lockedScores[comment.id]}
+                      value={tweetComments[comment.id] || ""}
+                      onChange={(e) => handleCommentChange(comment.id, e.target.value)}
+                    />
+                    <button onClick={() => saveComment(comment.id)}>Save Comment</button>
                   </>
                 )}
               </li>
