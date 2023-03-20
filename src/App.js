@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tweet } from 'react-twitter-widgets';
-import LazyLoad from 'react-lazyload';
+import LazyLoad from 'react-lazyload'
+import axios from 'axios';
+
+const serverUrl = 'http://localhost:3001';
 
 const TweetDataDisplay = () => {
   const [tweetData] = useState({
@@ -5348,39 +5351,129 @@ const TweetDataDisplay = () => {
     }
   });
 
-  const extractLinks = (text) => {
-    // Matches URLs starting with http or https
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
-    const links = text.match(urlRegex) || [];
-    return links;
-  }
+  const [teamScores, setTeamScores] = useState({ MTC: 0, TMZ: 0 });
+  const [tweetVotes, setTweetVotes] = useState({});
+  const [selectedScores, setSelectedScores] = useState({});
+
+  useEffect(() => {
+    const fetchVotes = async () => {
+      try {
+        const { data } = await axios.get(`${serverUrl}/votes`);
+        setTeamScores(data.teamScores);
+
+        const fetchedTweetVotes = data.tweetVotes;
+        setTweetVotes(fetchedTweetVotes);
+
+        const fetchedSelectedScores = Object.fromEntries(
+          Object.entries(fetchedTweetVotes).map(([id, vote]) => [id, vote.score])
+        );
+        setSelectedScores(fetchedSelectedScores);
+      } catch (error) {
+        console.error('Error fetching votes:', error);
+      }
+    };
+
+    fetchVotes();
+  }, []);
+
+
+
+  const handleScoreButtonClick = async (tweetId, team, score) => {
+    const newVote = { [tweetId]: { team, score } };
+    setTweetVotes({ ...tweetVotes, ...newVote });
+
+    const newSelectedScores = { ...selectedScores, [tweetId]: score };
+    setSelectedScores(newSelectedScores);
+
+    const newTeamScores = { ...teamScores, [team]: teamScores[team] + score };
+    setTeamScores(newTeamScores);
+
+    try {
+      await axios.post(`${serverUrl}/votes`, {
+        tweetVotes: newVote,
+        teamScores: newTeamScores,
+      });
+    } catch (error) {
+      console.error('Error updating votes:', error);
+    }
+  };
 
   return (
     <div style={{ paddingLeft: "2rem", paddingRight: "2rem", margin: "4rem", maxWidth: "100%", display: "flex", alignItems: "start", flexDirection: "column" }}>
+      <div style={{ position: 'sticky', top: 0, backgroundColor: 'white', zIndex: 100, padding: '1rem', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <h2>MTC: {teamScores.MTC}</h2>
+        <h2 style={{ marginLeft: '2rem' }}>TMZ: {teamScores.TMZ}</h2>
+      </div>
       <h1 style={{ textAlign: "center", width: "100%" }}>March Madness Votes<br />MTC vs TMZ</h1>
       {Object.entries(tweetData.comments).map(([username, comments]) => (
         <div key={username}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-          <input type="checkbox" id={`userCheckbox-${username}`} style={{ marginRight: '1rem' }} />
+            <input type="checkbox" id={`userCheckbox-${username}`} style={{ marginRight: '1rem' }} />
             <h2>{username}'s comments:</h2>
           </div>
           <ul>
-            {comments.map(comment => (
+            {comments.map((comment, index) => (
               <li key={comment.id}>
                 <label>
                   {comment.comment}
-                  {extractLinks(comment.comment).map(link => (
-                    <a key={link} href={link} target="_blank" rel="noreferrer">
-                      <br />
-                      {link}
-                    </a>
-                  ))}
                 </label>
                 <div style={{ marginLeft: '1rem' }}>
                   <LazyLoad height={200} once>
                     <Tweet tweetId={comment.id} />
                   </LazyLoad>
                 </div>
+                {index === comments.length - 1 && (
+                  <>
+                    <div>
+                      <label>
+                        <input
+                          type="radio"
+                          name={`team_${comment.id}`}
+                          value="MTC"
+                          checked={tweetVotes[comment.id]?.team === 'MTC'}
+                          onChange={(e) => {
+                            setTweetVotes({
+                              ...tweetVotes,
+                              [comment.id]: { ...tweetVotes[comment.id], team: e.target.value },
+                            });
+                          }}
+                        /> MTC
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          name={`team_${comment.id}`}
+                          value="TMZ"
+                          checked={tweetVotes[comment.id]?.team === 'TMZ'}
+                          onChange={(e) => {
+                            setTweetVotes({
+                              ...tweetVotes,
+                              [comment.id]: { ...tweetVotes[comment.id], team: e.target.value },
+                            });
+                          }}
+                        /> TMZ
+                      </label>
+                    </div>
+                    <div>
+                      {[1, 3, 5, 7, 10, 12, 15, -1].map((score) => (
+                        <button
+                          key={score}
+                          style={selectedScores[comment.id] === score ? { backgroundColor: 'yellow' } : {}}
+                          onClick={async () => {
+                            const team = document.querySelector(
+                              `input[name="team_${comment.id}"]:checked`
+                            )?.value;
+                            if (team) {
+                              await handleScoreButtonClick(comment.id, team, score);
+                            }
+                          }}
+                        >
+                          +{score}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
               </li>
             ))}
           </ul>
