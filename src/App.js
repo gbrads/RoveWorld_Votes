@@ -5444,6 +5444,7 @@ const TweetDataDisplay = () => {
                           type="radio"
                           name={`team_${comment.id}`}
                           value="MTC"
+                          disabled={!!tweetVotes[comment.id]}
                           checked={tweetVotes[comment.id]?.team === 'MTC'}
                           onChange={(e) => {
                             setTweetVotes({
@@ -5458,6 +5459,7 @@ const TweetDataDisplay = () => {
                           type="radio"
                           name={`team_${comment.id}`}
                           value="TMZ"
+                          disabled={!!tweetVotes[comment.id]}
                           checked={tweetVotes[comment.id]?.team === 'TMZ'}
                           onChange={(e) => {
                             setTweetVotes({
