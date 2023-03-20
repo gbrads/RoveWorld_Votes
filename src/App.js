@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Tweet } from 'react-twitter-widgets';
-import LazyLoad from 'react-lazyload'
+//import LazyLoad from 'react-lazyload'
 import axios from 'axios';
 
 const serverUrl = 'http://localhost:3001';
@@ -5398,6 +5398,14 @@ const TweetDataDisplay = () => {
     }
   };
 
+  const [embedTweets, setEmbedTweets] = useState({});
+  const toggleEmbedTweet = (tweetId) => {
+    setEmbedTweets((prevEmbedTweets) => ({
+      ...prevEmbedTweets,
+      [tweetId]: !prevEmbedTweets[tweetId],
+    }));
+  };
+
   return (
     <div style={{ paddingLeft: "2rem", paddingRight: "2rem", margin: "4rem", maxWidth: "100%", display: "flex", alignItems: "start", flexDirection: "column" }}>
       <div style={{ position: 'sticky', top: 0, backgroundColor: 'white', zIndex: 100, padding: '1rem', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -5417,14 +5425,20 @@ const TweetDataDisplay = () => {
                 <label>
                   {comment.comment}
                 </label>
-                <div style={{ marginLeft: '1rem' }}>
-                  <LazyLoad height={200} once>
+                <button
+                  style={{ marginLeft: '1rem' }}
+                  onClick={() => toggleEmbedTweet(comment.id)}
+                >
+                  {embedTweets[comment.id] ? 'Hide tweet' : 'Show tweet'}
+                </button>
+                {embedTweets[comment.id] ? (
+                  <div style={{ marginLeft: '1rem' }}>
                     <Tweet tweetId={comment.id} />
-                  </LazyLoad>
-                </div>
+                  </div>
+                ) : null}
                 {index === comments.length - 1 && (
                   <>
-                    <div>
+                    <div style={{ marginTop: "1rem", marginBottom: "6px" }}>
                       <label>
                         <input
                           type="radio"
