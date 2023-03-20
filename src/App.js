@@ -5472,6 +5472,7 @@ const TweetDataDisplay = () => {
                       {[1, 3, 5, 7, 10, 12, 15, -1].map((score) => (
                         <button
                           key={score}
+                          disabled={!!tweetVotes[comment.id]}
                           style={selectedScores[comment.id] === score ? { backgroundColor: 'yellow' } : {}}
                           onClick={async () => {
                             const team = document.querySelector(
