@@ -3,7 +3,7 @@ import { Tweet } from 'react-twitter-widgets';
 //import LazyLoad from 'react-lazyload'
 import axios from 'axios';
 
-const serverUrl = 'http://localhost:3001';
+const serverUrl = 'https://roveworldvotesbackend.herokuapp.com';
 
 const TweetDataDisplay = () => {
   const [tweetData] = useState({
