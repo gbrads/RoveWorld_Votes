@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Tweet } from 'react-twitter-widgets';
 //import LazyLoad from 'react-lazyload'
 import axios from 'axios';
+import './App.css'
 
 const serverUrl = 'https://roveworldvotesbackend.herokuapp.com';
 
@@ -5450,6 +5451,11 @@ const TweetDataDisplay = () => {
     }
   };
 
+  const selectedDisabledLabelStyle = {
+    color: 'blue',
+    fontWeight: "bold"
+  };  
+
   return (
     <div style={{ paddingLeft: "2rem", paddingRight: "2rem", margin: "4rem", maxWidth: "100%", display: "flex", alignItems: "start", flexDirection: "column" }}>
       <div style={{ position: 'sticky', top: 0, backgroundColor: 'white', zIndex: 100, padding: '1rem', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -5483,12 +5489,12 @@ const TweetDataDisplay = () => {
                 {index === comments.length - 1 && (
                   <>
                     <div style={{ marginTop: "1rem", marginBottom: "6px" }}>
-                      <label>
+                      <label style={ tweetVotes[comment.id]?.team === 'MTC' ? selectedDisabledLabelStyle : {} }>
                         <input
                           type="radio"
                           name={`team_${comment.id}`}
                           value="MTC"
-                          disabled={lockedScores[comment.id]}
+                          disabled={true}
                           checked={tweetVotes[comment.id]?.team === 'MTC'}
                           onChange={(e) => {
                             setTweetVotes({
@@ -5498,12 +5504,12 @@ const TweetDataDisplay = () => {
                           }}
                         /> MTC
                       </label>
-                      <label>
+                      <label style={ tweetVotes[comment.id]?.team === 'TMZ' ? selectedDisabledLabelStyle : {} }>
                         <input
                           type="radio"
                           name={`team_${comment.id}`}
                           value="TMZ"
-                          disabled={lockedScores[comment.id]}
+                          disabled={true}
                           checked={tweetVotes[comment.id]?.team === 'TMZ'}
                           onChange={(e) => {
                             setTweetVotes({
